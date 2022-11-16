@@ -102,6 +102,13 @@ def main():
     model.fit(ent, sal, epochs=int(sys.argv[1]), batch_size=16, verbose=0)
     k_sal = model.predict(x=ent)
     sacarSolucionesFordwardK(k_sal)
+    print('\n\n')
+    for capa in model.layers:
+        w, b = capa.get_weights()
+        for n in range(len(b)):
+            print(f'w{n} = {w[n]}')
+            print(f'umbral = {b[n]}')
+        print()
 
 
 if __name__ == '__main__':
