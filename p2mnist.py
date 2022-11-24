@@ -1,8 +1,49 @@
+import sys
+import time
+
 from tensorflow import keras
 from keras import layers
 import numpy as np
 
+FOTONUM = 60000
+
+def prepareData(arrayentrada, flaten, fotonum):
+    aux = []
+    for foto in arrayentrada:
+        aux.append(np.array(foto).flatten().tolist() if flaten else np.array(foto).tolist())
+    entt = []
+    for i in range(fotonum):
+        entt.append(aux[i])
+    aux = np.array(entt)
+
+    return aux
+
+def translateResult(res):
+    aux = []
+    for foto in res:
+        try:
+            aux.append(np.where(foto > 0.5)[0][0])
+        except:
+            aux.append(-1)
+    return aux
+
+def mostrarComparacion(esperado, obtenido):
+    acertados = 0
+    total = len(esperado)
+    print(f'\n\t\t##### RESULTADOS #######')
+    print(f'\n\tESPERADO \tOBTENIDO \tACERTADO')
+    print(f'\t----------------------------------')
+    for i in range(len(esperado)):
+        acertado = esperado[i] == obtenido[i]
+        print(f'\t    {esperado[i]}\t\t   {obtenido[i] if obtenido[i] != -1 else "X"}\t\t   {"OK" if acertado else "FAIL" if obtenido[i] != -1 else "ERROR"}')
+        acertados += 1 if acertado else 0
+    print(f'\t----------------------------------')
+    print(f'\t PORCENTAJE DE ACIERTO:  {round(acertados/total * 100, 2)}%')
+
 def main():
+    if len(sys.argv) != 2:
+        print('ERROR: the arguments is not correct')
+        return
     # array de 60.000 arrays de 28x28 con un float de 0-255
     enttemporal = keras.datasets.mnist.load_data()
     print('[LOG] Datos cargados.')
@@ -19,13 +60,12 @@ def main():
     # Make sure images have shape (28, 28, 1)
     x_train = np.expand_dims(x_train, -1)
     x_test = np.expand_dims(x_test, -1)
-    print("x_train shape:", x_train.shape)
-    print(x_train.shape[0], "train samples")
-    print(x_test.shape[0], "test samples")
-
     # convert class vectors to binary class matrices
     y_train = keras.utils.to_categorical(y_train, num_classes)
     y_test = keras.utils.to_categorical(y_test, num_classes)
+
+
+
     #ent = []
     #for foto in enttemporal[0][0]:
     #    #una matriz 28x28
@@ -35,6 +75,13 @@ def main():
     #        for pp in p:
     #            aux.append(pp)
     #    ent.append(tuple(aux))
+
+    ent = prepareData(x_train, True, 60000)
+    sal = prepareData(y_train, False, 60000)
+
+    enttest = prepareData(x_test, True, 10000)
+    saltest = prepareData(y_test, False, 10000)
+
     print('[LOG] Datos convertidos')
     model = keras.Sequential()
     model.add(layers.Input(shape=784))
@@ -44,12 +91,15 @@ def main():
     print('[LOG] Red creada')
     model.compile(loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
     print('[LOG] Red compilada')
-    sal=None
-    input('Continuar: ')
-    model.fit(x_train, y_train
-              , batch_size=128, epochs=1, validation_split=0.1)
-    print('[LOG] To calculao')
+    print('[LOG] Empezando calculo')
+    t1 = time.time()
+    epochs = int(sys.argv[1])
+    model.fit(ent, sal, batch_size=128, epochs=epochs, validation_split=0.1)
+    print(f'[LOG] To calculao en {time.time() - t1} seg con epoch = {epochs}')
 
+    obtenido = translateResult(model.predict(x=enttest))
+    esperado = translateResult(saltest)
+    mostrarComparacion(esperado, obtenido)
 
 
 if "__main__" == __name__:
