@@ -45,7 +45,7 @@ def sacarSolucionesFordwardK(ksal):
         for b in [0,1]:
             for c in [0,1]:
                 for d in [0,1]:
-                    print(f'- {a}{b}{c}{d}   -   {round(fordward((a,b,c,d)))}   -   {ksal[8*a + 4*b + 2*c + d][0]}')
+                    print(f'- {a}{b}{c}{d}   -   {round(fordward((a,b,c,d)))}   -   {ksal[8*a + 4*b + 2*c + d][0]}  \t{"OK" if (ksal[8*a + 4*b + 2*c + d][0] > 0.5 and round(fordward((a,b,c,d))) == 1) or (ksal[8*a + 4*b + 2*c + d][0] < 0.5 and round(fordward((a,b,c,d))) == 0) else "BAD"}')
 
 
 def sacarArraysFordward():
@@ -102,7 +102,6 @@ def main():
     model.fit(ent, sal, epochs=int(sys.argv[1]), batch_size=16, verbose=0)
     k_sal = model.predict(x=ent)
     sacarSolucionesFordwardK(k_sal)
-
 
 if __name__ == '__main__':
     main()
