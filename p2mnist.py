@@ -6,6 +6,7 @@ from keras import layers
 import numpy as np
 
 FOTONUM = 60000
+OPTION = False
 
 def prepareData(arrayentrada, flaten, fotonum):
     aux = []
@@ -22,7 +23,17 @@ def translateResult(res):
     aux = []
     for foto in res:
         try:
-            aux.append(np.where(foto > 0.5)[0][0])
+            if OPTION:
+                best = (-1, 0)
+                cont = 0
+                for label in foto:
+                    if label > best[1]:
+                        best = (cont, label)
+                    cont += 1
+                assert(best[0] != -1)
+                aux.append(best[0])
+            else:
+                aux.append(np.where(foto > 0.5)[0][0])
         except:
             aux.append(-1)
     return aux
@@ -41,9 +52,13 @@ def mostrarComparacion(esperado, obtenido):
     print(f'\t PORCENTAJE DE ACIERTO:  {round(acertados/total * 100, 2)}%')
 
 def main():
-    if len(sys.argv) != 2:
+    if not (2 <= len(sys.argv) <= 3):
         print('ERROR: the arguments is not correct')
+        print('USE:  python p2mnist.py <num epochs> [first|best]')
         return
+    if len(sys.argv) == 3:
+        global OPTION
+        OPTION = sys.argv[2] == 'best'
     # array de 60.000 arrays de 28x28 con un float de 0-255
     enttemporal = keras.datasets.mnist.load_data()
     print('[LOG] Datos cargados.')
