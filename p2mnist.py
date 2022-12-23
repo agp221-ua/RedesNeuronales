@@ -79,23 +79,12 @@ def main():
     y_train = keras.utils.to_categorical(y_train, num_classes)
     y_test = keras.utils.to_categorical(y_test, num_classes)
 
-
-
-    #ent = []
-    #for foto in enttemporal[0][0]:
-    #    #una matriz 28x28
-    #    aux = []
-    #    for p in foto:
-    #        #un array 28
-    #        for pp in p:
-    #            aux.append(pp)
-    #    ent.append(tuple(aux))
-
     ent = prepareData(x_train, True, 60000)
     sal = prepareData(y_train, False, 60000)
 
     enttest = prepareData(x_test, True, 10000)
     saltest = prepareData(y_test, False, 10000)
+
 
     print('[LOG] Datos convertidos')
     model = keras.Sequential()
@@ -108,7 +97,7 @@ def main():
     print('[LOG] Red compilada')
     print('[LOG] Empezando calculo')
     t1 = time.time()
-    epochs = int(sys.argv[1])
+    epochs = 15
     model.fit(ent, sal, batch_size=128, epochs=epochs, validation_split=0.1)
     print(f'[LOG] To calculao en {time.time() - t1} seg con epoch = {epochs}')
 
