@@ -1,8 +1,6 @@
 import sys
 from math import exp
 
-
-
 class Neurona:
     def __init__(self, arraypesos, umbral):
         self.weights = arraypesos
@@ -20,6 +18,10 @@ class Neurona:
         return 1/(1+exp(-z))
 
 def sacarArraysForward():
+    '''
+    Funcion auxiliar que devuelve un array con todas las entradas y salidas
+    :return: tupla con entradas y salidas
+    '''
     ent = []
     sol = []
 
@@ -34,6 +36,10 @@ def sacarArraysForward():
 
 
 def forward(t):
+    '''
+    Funcion forward que se pide el cual dada una entrada como tupla, devuelve la salida de la red
+    :param t: tupla con la entrada
+    '''
 
     N_And1 = Neurona([ 100,  100,    0, -100], -150)
     N_And2 = Neurona([-100, -100, -100,  100],  -50)
@@ -49,10 +55,9 @@ def forward(t):
     return N_Or.evaluate([N_And1_out, N_And2_out, N_And3_out, N_And4_out])
 
 def kerasCalculate():
-    #if len(sys.argv) != 2:
-    #    print('ERROR: the arguments is not correct')
-    #    return
-
+    '''
+    Funcion que compila y prueba la red con keras
+    '''
     from tensorflow import keras
     from keras import layers
 
@@ -66,16 +71,17 @@ def kerasCalculate():
 
     k_sal = model.predict(x=X)
 
-
     for i in range(len(k_sal)):
         print(f'{X[i]} - {k_sal[i][0]}           {Y[i]}  -  {1 if k_sal[i][0] >= 0.5 else 0}')
     print('\n\n')
-    for capa in model.layers:
-        w, b = capa.get_weights()
-        for n in range(len(b)):
-            print(f'w{n} = {w[n]}')
-            print(f'umbral = {b[n]}')
-        print()
+
+    ##### DESCOMENTAR PARA VER LOS PESOS
+    # for capa in model.layers:
+    #     w, b = capa.get_weights()
+    #     for n in range(len(b)):
+    #         print(f'w{n} = {w[n]}')
+    #         print(f'umbral = {b[n]}')
+    #     print()
 
 if __name__ == '__main__':
     print(forward((1,1,1,1)))
